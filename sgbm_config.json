@@ -1,0 +1,122 @@
+{
+  "_comment": [
+    "All tunable parameters for algorithm_test (test.cpp).",
+    "Every key is optional: anything omitted keeps its built-in default,",
+    "so this file documents the full set while staying a valid partial config.",
+    "Precedence: built-in defaults < these top-level keys < profiles[profile].",
+    "A key that the selected profile defines wins over the same top-level key;",
+    "set profile to \"\" to use the top-level values exactly as written.",
+    "Paths (camera_file, output.directory) are resolved against the",
+    "process working directory, not against this file."
+  ],
+
+  "_usage": "algorithm_test <left.png> <right.png> <this file>",
+
+  "profile": "fast",
+  "profiles": {
+    "balanced": {
+      "block_size": 5,
+      "p1_factor": 8,
+      "p2_factor": 256,
+      "mode": "hh",
+      "uniqueness_ratio": 5
+    },
+    "detail": {
+      "block_size": 3,
+      "p1_factor": 8,
+      "p2_factor": 64,
+      "mode": "hh",
+      "uniqueness_ratio": 5
+    },
+    "fast": {
+      "block_size": 5,
+      "p1_factor": 8,
+      "p2_factor": 256,
+      "mode": "3way",
+      "uniqueness_ratio": 5
+    }
+  },
+
+  "camera": {
+    "_comment": "Ignored when camera_file is set. fx in px, baseline in metres.",
+    "fx": 140.0,
+    "baseline_m": 0.06
+  },
+  "camera_file": "",
+  "_camera_file_example": "output/on/camera.json",
+
+  "working_depth_m": [0.07, 0.25],
+  "_working_depth_m_note": "Used to derive the search window when num_disparities is 0.",
+
+  "min_disparity": 0,
+  "num_disparities": 0,
+  "_search_window_note": "num_disparities > 0 overrides working_depth_m; must be a multiple of 16.",
+
+  "padding": true,
+
+  "matcher": "sgbm",
+  "_matcher_options": ["sgbm", "binarysgbm"],
+  "_matcher_note": [
+    "sgbm = cv::StereoSGBM, Birchfield-Tomasi grayscale cost (default).",
+    "binarysgbm = cv::stereo::StereoBinarySGBM from opencv_contrib/xstereo:",
+    "  same energy formulation, but the pixel cost is a Hamming distance",
+    "  between census descriptors, so it is insensitive to the monotonic",
+    "  gain changes a projector's light falloff introduces. Needs xstereo.",
+    "Reuses block_size, p1/p2_factor, pre_filter_cap, uniqueness_ratio,",
+    "disp12_max_diff, speckle_window_size, speckle_range and mode.",
+    "Everything downstream (lr_max_diff_px, WLS, refinement) is shared.",
+    "See workspace/sgbm-pipeline-analysis.md section 3.6 for measurements."
+  ],
+
+  "block_size": 5,
+  "p1_factor": 8,
+  "p2_factor": 256,
+  "mode": "hh",
+  "_mode_options": ["sgbm", "hh", "hh4", "3way"],
+  "_mode_note": "hh4 and 3way are SGBM-only. With matcher = \"binarysgbm\" only sgbm and hh exist (StereoBinarySGBM defines just those two), and using the other two is rejected rather than silently downgraded. Note that a profile that defines 'mode' overrides this top-level value.",
+  "_profile_note": "Profiles are shared by both matchers, so not every profile is usable with every matcher. binarysgbm: balanced OK (block 5, hh), detail OK (block 3, hh; xstereo accepts block 3 for all census kernels), fast REJECTED because it sets mode 3way. For a fast binarysgbm use profile \"\" plus mode \"sgbm\" (one pass instead of two).",
+
+  "uniqueness_ratio": 5,
+  "pre_filter_cap": 31,
+  "disp12_max_diff": 1,
+  "speckle_window_size": 40,
+  "speckle_range": 1,
+
+  "preprocess": "none",
+  "_preprocess_options": ["none", "clahe"],
+  "clahe_clip_limit": 2.0,
+  "clahe_tile_grid": 8,
+
+  "postprocess": "wls",
+  "_postprocess_options": ["none", "wls"],
+
+  "lr_max_diff_px": 1.5,
+  "wls_lambda": 100.0,
+  "wls_sigma_color": 0.8,
+  "wls_discontinuity_radius": 1,
+  "confidence_threshold": 0.0,
+  "inference_radius_at_640_px": 8.0,
+
+  "median_size": 3,
+  "median_max_span_px": 3.0,
+  "preserve_trusted_jump_px": 2.0,
+  "post_speckle_size": 20,
+  "post_speckle_range_px": 2.0,
+
+  "_binary_note": "Only read when matcher = \"binarysgbm\".",
+  "binary_kernel": "mod_census",
+  "_binary_kernel_options": ["dense", "sparse", "cs", "mod_cs", "mod_census"],
+  "_binary_kernel_note": "Census descriptor variant. Mean-variation and star kernels are not offered: xstereo asserts on an integral image it never builds, and the star kernel needs block_size >= 7.",
+  "binary_symmetric_subpixel": false,
+  "binary_average_speckle_removal": true,
+
+  "output": {
+    "directory": "",
+    "_directory_note": "Empty = the left image's directory.",
+    "prefix": "cpp_",
+    "save_artifacts": true,
+    "show_window": true,
+    "preview_disparity_range_px": [0.0, 0.0],
+    "_preview_note": "[0, 0] = derive the colour range from the result's 1-99 percentiles."
+  }
+}

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="470pt" height="390pt" viewBox="0 0 470 390">
+<title>双目成像与视差计算原理</title>
+<desc>平行双目模型：空间点 P 在左右像面的投影 pL、pR 位于同一极线，水平坐标差为视差 d = xL - xR，深度 Z = fB/d。</desc>
+<rect x="0" y="0" width="470" height="390" fill="#ffffff"/>
+<g font-family="Noto Sans SC, Source Han Sans SC, Microsoft YaHei, sans-serif" stroke-linecap="butt">
+<line x1="130.00" y1="24.00" x2="130.00" y2="16.50" stroke="#b9c6d3" stroke-width="0.60"/>
+<line x1="340.00" y1="24.00" x2="340.00" y2="16.50" stroke="#b9c6d3" stroke-width="0.60"/>
+<line x1="130.00" y1="18.50" x2="340.00" y2="18.50" stroke="#1f4e79" stroke-width="0.80"/>
+<polygon points="130.00,18.50 133.00,16.90 133.00,20.10" fill="#1f4e79" stroke="none" stroke-width="0.70"/>
+<polygon points="340.00,18.50 337.00,20.10 337.00,16.90" fill="#1f4e79" stroke="none" stroke-width="0.70"/>
+<text x="235.00" y="13.50" font-size="6.80" fill="#1f4e79" text-anchor="middle" font-weight="600">B（基线）</text>
+<rect x="108.00" y="24.00" width="44.00" height="22.00" rx="2.00" fill="#eef4f9" stroke="#7aa5c6" stroke-width="0.80"/>
+<text x="130.00" y="38.50" font-size="6.00" fill="#1f4e79" text-anchor="middle" font-weight="600">Camera L</text>
+<polygon points="124.00,46.00 136.00,46.00 130.00,54.00" fill="#d6e6f4" stroke="#7aa5c6" stroke-width="0.70"/>
+<rect x="318.00" y="24.00" width="44.00" height="22.00" rx="2.00" fill="#eef4f9" stroke="#7aa5c6" stroke-width="0.80"/>
+<text x="340.00" y="38.50" font-size="6.00" fill="#1f4e79" text-anchor="middle" font-weight="600">Camera R</text>
+<polygon points="334.00,46.00 346.00,46.00 340.00,54.00" fill="#d6e6f4" stroke="#7aa5c6" stroke-width="0.70"/>
+<rect x="95.00" y="71.00" width="70.00" height="6.00" rx="0.80" fill="#eef4f9" stroke="#7aa5c6" stroke-width="0.80"/>
+<rect x="305.00" y="71.00" width="70.00" height="6.00" rx="0.80" fill="#eef4f9" stroke="#7aa5c6" stroke-width="0.80"/>
+<text x="108.00" y="90.00" font-size="6.00" fill="#5d6771" text-anchor="start">像平面</text>
+<text x="362.00" y="90.00" font-size="6.00" fill="#5d6771" text-anchor="end">像平面</text>
+<line x1="130.00" y1="54.00" x2="130.00" y2="71.00" stroke="#5b8db3" stroke-width="0.70"/>
+<polygon points="130.00,54.00 131.22,56.30 128.78,56.30" fill="#5b8db3" stroke="none" stroke-width="0.70"/>
+<polygon points="130.00,71.00 128.78,68.70 131.22,68.70" fill="#5b8db3" stroke="none" stroke-width="0.70"/>
+<text x="127.80" y="65.80" font-size="6.40" fill="#3c6b91" text-anchor="end" font-weight="600">f</text>
+<line x1="130.00" y1="54.00" x2="235.00" y2="180.00" stroke="#5b8db3" stroke-width="0.90"/>
+<polygon points="177.25,110.70 180.03,111.83 177.86,113.64" fill="#5b8db3" stroke="none" stroke-width="0.70"/>
+<line x1="340.00" y1="54.00" x2="235.00" y2="180.00" stroke="#5b8db3" stroke-width="0.90"/>
+<polygon points="292.75,110.70 292.14,113.64 289.97,111.83" fill="#5b8db3" stroke="none" stroke-width="0.70"/>
+<line x1="84.00" y1="54.00" x2="106.00" y2="54.00" stroke="#b9c6d3" stroke-width="0.60"/>
+<line x1="84.00" y1="180.00" x2="202.00" y2="180.00" stroke="#b9c6d3" stroke-width="0.60"/>
+<line x1="84.00" y1="54.00" x2="84.00" y2="180.00" stroke="#1f4e79" stroke-width="0.80"/>
+<polygon points="84.00,54.00 85.60,57.00 82.40,57.00" fill="#1f4e79" stroke="none" stroke-width="0.70"/>
+<polygon points="84.00,180.00 82.40,177.00 85.60,177.00" fill="#1f4e79" stroke="none" stroke-width="0.70"/>
+<text x="79.00" y="99.00" font-size="7.20" fill="#1f4e79" text-anchor="end" font-weight="600">Z</text>
+<rect x="202.00" y="180.00" width="66.00" height="42.00" rx="2.00" fill="#f1f4f7" stroke="#b6bdc5" stroke-width="0.70"/>
+<text x="235.00" y="211.00" font-size="6.00" fill="#5d6771" text-anchor="middle">物体</text>
+<circle cx="235.00" cy="180.00" r="3.50" fill="white" stroke="none" stroke-width="0.60"/>
+<circle cx="235.00" cy="180.00" r="2.60" fill="#b8322a" stroke="none" stroke-width="0.60"/>
+<text x="241.50" y="176.80" font-size="8.00" fill="#b8322a" text-anchor="start" font-weight="600">P</text>
+<circle cx="146.67" cy="74.00" r="1.90" fill="#1f4e79" stroke="none" stroke-width="0.60"/>
+<text x="150.67" y="90.00" font-size="6.80" fill="#1f4e79" text-anchor="start" font-weight="600">p</text>
+<text x="155.35" y="92.04" font-size="4.62" fill="#1f4e79" text-anchor="start" font-weight="600">L</text>
+<circle cx="323.33" cy="74.00" r="1.90" fill="#1f4e79" stroke="none" stroke-width="0.60"/>
+<text x="327.33" y="90.00" font-size="6.80" fill="#1f4e79" text-anchor="start" font-weight="600">p</text>
+<text x="332.01" y="92.04" font-size="4.62" fill="#1f4e79" text-anchor="start" font-weight="600">R</text>
+<text x="137.50" y="231.00" font-size="6.80" fill="#1f4e79" text-anchor="middle" font-weight="600">左图（极线校正后）</text>
+<text x="137.50" y="238.00" font-size="5.60" fill="#5d6771" text-anchor="middle">Left Rectified Image</text>
+<rect x="50.00" y="250.00" width="175.00" height="92.00" rx="1.50" fill="white" stroke="#7aa5c6" stroke-width="1.00"/>
+<line x1="52.00" y1="295.00" x2="223.00" y2="295.00" stroke="#9dc0dc" stroke-width="0.70" stroke-dasharray="3 3"/>
+<rect x="90.00" y="270.00" width="70.00" height="50.00" rx="1.20" fill="#e8eef4" stroke="#9db4c8" stroke-width="0.80"/>
+<text x="334.50" y="231.00" font-size="6.80" fill="#1f4e79" text-anchor="middle" font-weight="600">右图（极线校正后）</text>
+<text x="334.50" y="238.00" font-size="5.60" fill="#5d6771" text-anchor="middle">Right Rectified Image</text>
+<rect x="247.00" y="250.00" width="175.00" height="92.00" rx="1.50" fill="white" stroke="#7aa5c6" stroke-width="1.00"/>
+<line x1="249.00" y1="295.00" x2="420.00" y2="295.00" stroke="#9dc0dc" stroke-width="0.70" stroke-dasharray="3 3"/>
+<rect x="287.00" y="270.00" width="70.00" height="50.00" rx="1.20" fill="#e8eef4" stroke="#9db4c8" stroke-width="0.80"/>
+<text x="54.00" y="289.50" font-size="5.60" fill="#5d6771" text-anchor="start">极线</text>
+<circle cx="125.00" cy="295.00" r="3.20" fill="white" stroke="none" stroke-width="0.60"/>
+<circle cx="125.00" cy="295.00" r="2.30" fill="#b8322a" stroke="none" stroke-width="0.60"/>
+<text x="129.50" y="303.50" font-size="6.80" fill="#b8322a" text-anchor="start" font-weight="600">p</text>
+<text x="134.18" y="305.54" font-size="4.62" fill="#b8322a" text-anchor="start" font-weight="600">L</text>
+<circle cx="298.00" cy="295.00" r="3.20" fill="white" stroke="none" stroke-width="0.60"/>
+<circle cx="298.00" cy="295.00" r="2.30" fill="#b8322a" stroke="none" stroke-width="0.60"/>
+<text x="302.50" y="303.50" font-size="6.80" fill="#b8322a" text-anchor="start" font-weight="600">p</text>
+<text x="307.18" y="305.54" font-size="4.62" fill="#b8322a" text-anchor="start" font-weight="600">R</text>
+<line x1="50.00" y1="330.00" x2="125.00" y2="330.00" stroke="#1f4e79" stroke-width="0.80"/>
+<polygon points="50.00,330.00 53.00,328.40 53.00,331.60" fill="#1f4e79" stroke="none" stroke-width="0.70"/>
+<polygon points="125.00,330.00 122.00,331.60 122.00,328.40" fill="#1f4e79" stroke="none" stroke-width="0.70"/>
+<line x1="125.00" y1="327.00" x2="125.00" y2="333.00" stroke="#1f4e79" stroke-width="0.70"/>
+<text x="82.50" y="325.50" font-size="7.00" fill="#1f4e79" text-anchor="start" font-weight="600">x</text>
+<text x="86.73" y="327.60" font-size="4.76" fill="#1f4e79" text-anchor="start" font-weight="600">L</text>
+<line x1="247.00" y1="330.00" x2="298.00" y2="330.00" stroke="#1f4e79" stroke-width="0.80"/>
+<polygon points="247.00,330.00 250.00,328.40 250.00,331.60" fill="#1f4e79" stroke="none" stroke-width="0.70"/>
+<polygon points="298.00,330.00 295.00,331.60 295.00,328.40" fill="#1f4e79" stroke="none" stroke-width="0.70"/>
+<line x1="298.00" y1="327.00" x2="298.00" y2="333.00" stroke="#1f4e79" stroke-width="0.70"/>
+<text x="266.50" y="325.50" font-size="7.00" fill="#1f4e79" text-anchor="start" font-weight="600">x</text>
+<text x="270.73" y="327.60" font-size="4.76" fill="#1f4e79" text-anchor="start" font-weight="600">R</text>
+<line x1="125.00" y1="342.00" x2="125.00" y2="357.00" stroke="#b9c6d3" stroke-width="0.60" stroke-dasharray="3 3"/>
+<line x1="298.00" y1="342.00" x2="298.00" y2="357.00" stroke="#b9c6d3" stroke-width="0.60" stroke-dasharray="3 3"/>
+<line x1="125.00" y1="356.00" x2="298.00" y2="356.00" stroke="#1f4e79" stroke-width="0.80"/>
+<polygon points="125.00,356.00 128.00,354.40 128.00,357.60" fill="#1f4e79" stroke="none" stroke-width="0.70"/>
+<polygon points="298.00,356.00 295.00,357.60 295.00,354.40" fill="#1f4e79" stroke="none" stroke-width="0.70"/>
+<text x="211.50" y="351.50" font-size="7.20" fill="#1f4e79" text-anchor="middle" font-weight="600">d（视差）</text>
+<text x="185.36" y="379.00" font-size="8.00" fill="#1f4e79" text-anchor="start" font-weight="600">d = x</text>
+<text x="203.36" y="381.20" font-size="5.60" fill="#1f4e79" text-anchor="start" font-weight="600">L</text>
+<text x="206.60" y="379.00" font-size="8.00" fill="#1f4e79" text-anchor="start" font-weight="600"> − x</text>
+<text x="219.44" y="381.20" font-size="5.60" fill="#1f4e79" text-anchor="start" font-weight="600">R</text>
+<text x="249.26" y="379.00" font-size="8.00" fill="#1f4e79" text-anchor="start" font-weight="600">Z = f B / d</text>
+</g></svg>

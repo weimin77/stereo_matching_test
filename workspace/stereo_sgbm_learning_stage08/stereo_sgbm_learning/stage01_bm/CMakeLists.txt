@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.16)
+project(handmade_bm LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+find_package(OpenCV REQUIRED COMPONENTS core imgcodecs imgproc)
+add_executable(handmade_bm src/main.cpp)
+target_include_directories(handmade_bm PRIVATE include)
+target_link_libraries(handmade_bm PRIVATE ${OpenCV_LIBS})
