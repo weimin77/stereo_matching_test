@@ -109,3 +109,12 @@ target_compile_definitions(algorithm_test PRIVATE
 if(ALGORITHM_TEST_HAVE_XSTEREO)
     target_compile_definitions(algorithm_test PRIVATE ALGORITHM_TEST_HAVE_XSTEREO=1)
 endif()
+
+# ---------------------------------------------------------------------------
+# Stereo calibration tool (OpenCV 5). It is its own project so it can also be
+# configured on its own; adding it here is only for convenience.
+# ---------------------------------------------------------------------------
+option(BUILD_STEREO_CALIBRATION "Build the stereo_calibration tool" ON)
+if(BUILD_STEREO_CALIBRATION)
+    add_subdirectory(stereo_calibration)
+endif()
