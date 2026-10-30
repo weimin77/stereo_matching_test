@@ -189,6 +189,28 @@ inline Resolved resolve(const int width, const int height, const double fx, cons
         throw std::runtime_error("disparity search window does not fit the image");
     if (r.numDisparities >= width)
         throw std::runtime_error("num_disparities must be smaller than the image width");
+
+    // cv::stereo::StereoBinarySGBM sizes its shared buffer in size_t but then
+    // calls buffer.create(1, (int)totalBufSize, CV_8U) (stereo_binary_sgbm.cpp).
+    // With MODE_HH it materialises both the C and the S cost volume, i.e.
+    // 4 bytes per (padded pixel, label), so the cast wraps to a negative column
+    // count and OpenCV reports a nonsensical allocation size. Refuse up front and
+    // point at the one-pass mode, which keeps S out and needs ~2 orders less.
+    if (s.matcher == Matcher::BinarySGBM && s.mode == SgbmMode::HH) {
+        const double labels = static_cast<double>(((r.minDisparity + r.numDisparities + 15) / 16) * 16);
+        const double bufferBytes = 4.0 * (width + 2.0 * r.padding) * labels * height;
+        constexpr double kIntMax = 2147483647.0;
+        if (bufferBytes > kIntMax) {
+            char message[512];
+            std::snprintf(message, sizeof message,
+                          "matcher \"binarysgbm\" with mode \"hh\" needs %.2f GB for this "
+                          "window (%dx%d, %d labels) and xstereo overflows its int-sized "
+                          "buffer beyond 2.15 GB; use mode \"sgbm\" (one pass) or the "
+                          "sgbm matcher",
+                          bufferBytes / 1e9, width, height, static_cast<int>(labels));
+            throw std::runtime_error(message);
+        }
+    }
     return r;
 }
 
@@ -1150,7 +1172,12 @@ inline std::string joinPath(const std::string& directory, const std::string& nam
 //
 // Every tunable parameter lives in the JSON; the CLI only names the inputs.
 // Use "-" or omit the config argument to run with the built-in defaults.
+//
+// Build systems that want the pipeline without this CLI (the MiddEval3 adapter
+// in ~/projects/MiddEval3-SDK-1.6) define ALGORITHM_TEST_NO_MAIN and include
+// this file; everything above is plain namespace code with no global state.
 // ---------------------------------------------------------------------------
+#ifndef ALGORITHM_TEST_NO_MAIN
 int main(int argc, char** argv)
 {
     using namespace sgbmpipe;
@@ -1310,3 +1337,4 @@ int main(int argc, char** argv)
         return 2;
     }
 }
+#endif  // ALGORITHM_TEST_NO_MAIN
