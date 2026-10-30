@@ -89,7 +89,11 @@ struct Settings {
     int    explicitNumDisparities = 0;
 
     // Remap
-    int  mapType        = CV_16SC2;   // CV_16SC2 (fixed point, ~2x faster) or CV_32FC1
+    // CV_16SC2 quantises the map to 1/32 px and is the traditional choice, but on
+    // OpenCV 5 with its default threading CV_32FC1 measured faster here (0.21 vs
+    // 0.44 ms at 640x480), and it also avoids the quantisation. Fixed point only
+    // wins single-threaded at small sizes.
+    int  mapType        = CV_16SC2;   // CV_16SC2 (fixed point) or CV_32FC1
     bool useCubic       = false;
     std::string outputExtension = ".png";
     // Optional closed-loop check: detect a chessboard in the *rectified* pair and
@@ -873,7 +877,8 @@ void printUsage(const char* program)
         "  --min-disparity <n>    explicit minDisparity, overrides --depth-range\n"
         "  --num-disparities <n>  explicit numDisparities, rounded up to a multiple of 16\n"
         "  --keep-rectification   reuse the stored R1/R2/P1/P2 (alpha would be ignored)\n"
-        "  --float-maps           CV_32FC1 maps instead of the fixed-point CV_16SC2\n"
+        "  --float-maps           CV_32FC1 maps: no 1/32 px quantisation, and faster\n"
+        "                         than CV_16SC2 with OpenCV 5 multithreading\n"
         "  --cubic                INTER_CUBIC instead of INTER_LINEAR\n"
         "  --verify-pattern <WxH> detect a chessboard in the rectified pair and report\n"
         "                         the row mismatch (needs inner-corner counts)\n"

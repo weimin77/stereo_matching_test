@@ -91,7 +91,7 @@ cmake --build build -j
 | `--depth-range <near>,<far>` | — | 米；据此推导 `minDisparity` / `numDisparities` |
 | `--min-disparity` / `--num-disparities` | — | 直接指定视差窗口，`numDisparities` 向上取 16 的倍数 |
 | `--keep-rectification` | 关 | 复用标定里已存的 `R1/R2/P1/P2`（此时 `--alpha` 无效） |
-| `--float-maps` | 关 | 用 `CV_32FC1` map；默认 `CV_16SC2` 定点，约快一倍 |
+| `--float-maps` | 关 | 用 `CV_32FC1` map。默认 `CV_16SC2` 把映射量化到 1/32 px；实测 OpenCV 5 多线程下 `CV_32FC1` 反而快约 2 倍（0.21 vs 0.44 ms @640×480），只有单线程小图时定点才更快 |
 | `--cubic` | 关 | `INTER_CUBIC`；默认为 `INTER_LINEAR` |
 | `--verify-pattern <WxH>` | — | 在校正**输出**上重检棋盘格并统计行差 |
 | `--verify-sb` | 关 | 验证时用 `findChessboardCornersSB` |
@@ -218,3 +218,27 @@ doffs 0.0000 px   基线 0.083623 m   f'·B 43.5506 px·m
   `\|dy\|`。`matchRowErrors()` 同时试正序和逆序，取均值较小的那个。
 - **`--keep-rectification` 不读 `roi`。** `stereo_calibration` 没有保存 `roi1`/`roi2`，
   所以这条路径不裁剪。需要裁剪就用默认路径重算。
+
+## 10. 耗时
+
+640×480 单张（OpenCV 5.0，16 线程，中位数）：
+
+| 操作 | 耗时 |
+| --- | --- |
+| `stereoRectify`（一次性） | 0.20 ms |
+| `initUndistortRectifyMap` ×2（一次性） | 1.8 ms |
+| `remap` 单张彩色，`CV_32FC1` + `INTER_LINEAR` | 0.19 ms |
+| `remap` 单张彩色，`CV_16SC2` + `INTER_LINEAR` | 0.42 ms |
+| `remap` 单张彩色，`CV_16SC2` + `INTER_CUBIC` | 0.61 ms |
+| 有效掩膜（一对图像） | 0.46 ms |
+| 写 PNG（彩色） | 7.8 ms |
+| 写 JPEG（彩色） | 1.1 ms |
+| 写 BMP（彩色） | 0.8 ms |
+
+几何校正本身是亚毫秒级；**端到端耗时由图像编码决定**。本工具处理一对图像
+（`remap` ×2 + 掩膜 + 写 PNG ×2）实测 17.7 ms，其中 PNG 编码占 15.5 ms。
+换成 `--out-ext .bmp` 后降到 3.8 ms。
+
+作为参照，`test.cpp` 在同一对图像上的 SGBM 匹配是 43.4 ms/对（Release）。校正的
+几何部分约占 1–2 %，但若把 PNG 落盘算进去就变成 40 %，所以批处理时应优先避免
+中间文件，或改用无损但更快的容器。

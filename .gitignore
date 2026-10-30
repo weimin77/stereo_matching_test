@@ -32,6 +32,9 @@ test_*.png
 cpp_*.png
 # HDF5 containers
 output/
+# Regression artefacts from the stereo_calibration / stereo_rectification examples
+stereo_rectification/calib/
+stereo_rectification/rectified/
 *.hdf5
 
 # ---------------------------------------------------------------------------
