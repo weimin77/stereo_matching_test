@@ -118,3 +118,12 @@ option(BUILD_STEREO_CALIBRATION "Build the stereo_calibration tool" ON)
 if(BUILD_STEREO_CALIBRATION)
     add_subdirectory(stereo_calibration)
 endif()
+
+# ---------------------------------------------------------------------------
+# Epipolar rectification tool. Independent project as well; it consumes the
+# stereo.yml that stereo_calibration writes.
+# ---------------------------------------------------------------------------
+option(BUILD_STEREO_RECTIFICATION "Build the stereo_rectification tool" ON)
+if(BUILD_STEREO_RECTIFICATION)
+    add_subdirectory(stereo_rectification)
+endif()
