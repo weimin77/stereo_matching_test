@@ -695,8 +695,12 @@ std::string buildMarkdown(const Settings& s, const std::vector<ImagePair>& pairs
         md << "| 棋盘格平均深度 | " << verification.meanDepth << " m | — |\n";
     }
     md << "\n判据说明：极线误差衡量 R/T 与畸变模型是否能真正把对应点拉到同一行（这是"
-          "稠密匹配的前提）；平面性与边长则独立于重投影误差，用来发现基线或方格尺寸"
-          "被错误标定——重投影误差对此完全不敏感。\n";
+          "稠密匹配的前提），它与重投影误差是两个独立的量；平面性独立于两者，反映畸变"
+          "残差与靶标平整度。\n\n"
+          "注意边长检验的适用范围：三角化坐标正比于基线，而基线正比于 `--square-size`，"
+          "两者同比缩放，所以这条检验只能证明基线与焦距相互自洽（裁剪错位、坐标系不匹配"
+          "会让它变大），不能证明绝对尺度。`--square-size` 本身填错时，重投影误差、极线"
+          "误差、边长误差全部保持不变，只能用外部尺寸交叉验证。\n";
     if (!referenceSummary.empty()) {
         md << "\n### 与参考标定 `" << s.referenceIntrinsics << "` 对比\n\n```\n"
            << referenceSummary << "```\n";
@@ -950,11 +954,15 @@ int main(int argc, char** argv)
         std::printf("  %-22s %8.1f ms\n", "total", total);
 
         const bool epipolarOk = verification.epipolarMean < 0.5 && verification.epipolarP95 < 1.0;
-        const bool scaleOk = !verification.triangulated ||
-                             std::abs(verification.edgeLengthError) < 0.01;
-        std::printf("\n结论: 极线误差%s；尺度%s\n",
+        // The edge length is compared against --square-size, and both scale with
+        // it, so this only proves that the baseline and the focal length agree
+        // with each other. A wrong --square-size leaves it at zero.
+        const bool edgeOk = !verification.triangulated ||
+                            std::abs(verification.edgeLengthError) < 0.01;
+        std::printf("\n结论: 极线误差%s；三角化边长%s\n",
                     epipolarOk ? "合格（均值 < 0.5 px）" : "偏大，检查角点质量或畸变模型",
-                    scaleOk ? "一致（边长误差 < 1%）" : "不一致，检查 --square-size");
+                    edgeOk ? "自洽（误差 < 1%，绝对尺度仍需外部确认）"
+                           : "不自洽，检查校正/裁剪是否与 P 一致");
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "\nError: " << error.what() << '\n';
