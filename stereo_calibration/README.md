@@ -46,6 +46,14 @@ cmake --build build -j
 需要 OpenCV 5 的 `calib`、`stereo`、`geometry`、`objdetect` 四个模块。CMake 会在配置阶段检查，
 缺哪个直接报出来，不会留到编译或链接才失败。
 
+图形界面是可选的第二个目标 `stereo_calib_gui`，需要 Qt 5 Widgets（Debian/Ubuntu 上是
+`qtbase5-dev`）。找不到 Qt 时只跳过它并给出 warning，CLI 照常构建；不需要界面时可以用
+`-DBUILD_STEREO_CALIB_GUI=OFF` 显式关掉。
+
+```bash
+cmake -S . -B build -DBUILD_STEREO_CALIB_GUI=OFF
+```
+
 ## 3. 运行
 
 ```bash
@@ -55,7 +63,67 @@ cmake --build build -j
   --output output
 ```
 
-## 4. 参数
+## 4. 图形界面
+
+`stereo_calib_gui` 是同一套流水线的 Qt 5 前端。标定逻辑在 `calib_core` 里，CLI 和 GUI 共用，
+所以两边得到的数字完全一致；界面只负责收集参数、把任务放到后台线程、显示日志与结果。
+
+```bash
+./build/stereo_calib_gui
+```
+
+![参数面板、图像对列表与角点预览](./doc/gui-detect.png)
+
+### 4.1 布局
+
+- **左栏**：输入（目录、左右前缀、扩展名、参考 yml）、棋盘格（内角点数、方格边长、
+  `findChessboardCornersSB`）、校正（`alpha`、联合优化内参、`fx == fy`）、输出（目录、是否写
+  预览图）、被排除的视图列表。
+- **中间**：图像对列表，每项标注角点检测结果（`ok` / `no board`）。选中后右侧显示该图像，
+  可切换左/右目，可叠加角点与序号；图像支持滚轮缩放、双击复位。
+- **下栏**：`Log` 是流水线原始输出（与 CLI 的 stdout 相同），`Results` 是结构化结果。
+
+### 4.2 结果页签
+
+![Results 页签](./doc/gui-results.png)
+
+| 页签 | 内容 |
+| --- | --- |
+| Summary | 有效视图数、图像尺寸、单目/双目 RMS、基线、`R` 与单位阵的偏差、极线误差均值/P95/最大、三角化平面性与边长、两条判据的结论 |
+| Matrices | `K1 D1 K2 D2 R T E F R1 R2 P1 P2 Q`，可直接复制 |
+| Per-view | 每个视图的左右重投影误差，> 1 px 标红；选中行后可“排除并重跑” |
+| Images | 校正左图、校正右图、极线检查拼接图、原图与校正图对比，均可缩放 |
+
+### 4.3 工作流
+
+1. 选择图像目录，确认内角点数与方格边长（单位 mm，写入 `Settings` 时换算成米）。
+2. **Detect corners** 只跑发现与角点检测，用于先剔除坏图，不写任何输出文件。
+3. **Run calibration** 跑完整流水线，输出文件与 CLI 相同。
+4. 若 Per-view 里某个视图明显偏大：选中它 → **Exclude selected and re-run**。被排除的视图
+   列在左栏，可用 **Clear** 恢复。
+5. **Open output folder** 打开 `stereo.yml`、报告与预览图所在目录。
+
+参数与窗口布局通过 `QSettings` 记住，下次启动自动恢复。运行中 **Cancel** 会在下一对图像或
+下一阶段前中止；取消发生在写文件之前，不会留下半套结果。
+
+日志区是核心流水线的原始输出，与 CLI 的 stdout 逐字相同，因此是中文。WSL 的默认安装通常
+没有中文字体，程序启动时会尝试加载系统里的 Noto/文泉驿字体或 `/mnt/c/Windows/Fonts` 下的
+中文字体；都找不到时中文会显示为方框，安装 `fonts-noto-cjk` 即可。
+
+### 4.4 无头自检
+
+```bash
+QT_QPA_PLATFORM=offscreen ./build/stereo_calib_gui --selftest \
+  --images /home/min/projects/opencv-samples/samples/data \
+  --output /tmp/gui-selftest \
+  --screenshot /tmp/gui.png
+```
+
+自检会走完整的 GUI 路径（后台线程、日志、结果面板）并打印一行指标；成功退出码为 0。
+可用 `--detect-only` 只验证检测，`--exclude 05,06` 验证排除视图，`--screenshot-tab results`
+让截图停在 Results 页签。
+
+## 5. 参数
 
 | 选项 | 默认 | 说明 |
 | --- | --- | --- |
@@ -74,7 +142,7 @@ cmake --build build -j
 | `--no-window` | 开窗 | 从不打开窗口 |
 | `--quiet` | 详细 | 只打印阶段汇总 |
 
-## 5. 输出
+## 6. 输出
 
 ```
 intrinsics.yml          M1 D1 M2 D2 + 各自的 RMS
@@ -96,7 +164,7 @@ calibration_report.md   Markdown 汇总，可直接贴进报告
 2. 若输入是原始图像，还需先用 `M1/D1/M2/D2/R1/R2/P1/P2` 做 `remap`，否则
    `test.cpp` 内部按无畸变、已校正的假设建立的视差-深度关系不成立。
 
-## 6. 在 OpenCV 样例数据上的结果
+## 7. 在 OpenCV 样例数据上的结果
 
 数据：`opencv-samples/samples/data/left01..14` + `right01..14`（缺 10，实际 13 对，640×480）。
 
@@ -163,7 +231,7 @@ calibration_report.md   Markdown 汇总，可直接贴进报告
 - `--sb` 在 `05` 上检测失败（一副图像返回 0 角点），有效视图从 13 降到 12。低 RMS 有一部分
   来自少了一个难视图，不能直接横向比较。
 
-## 7. 常见问题
+## 8. 常见问题
 
 | 现象 | 原因 | 处理 |
 | --- | --- | --- |
@@ -174,7 +242,7 @@ calibration_report.md   Markdown 汇总，可直接贴进报告
 | 基线明显不对 | 方格尺寸单位错（mm 当成 m） | `--square-size` 单位是**米** |
 | `stereoCalibrate` 报 `d <= 2` 断言 | `perViewErrors` 用了 `vector<double>`；它要求 N×2 矩阵 | 已在本实现中处理，见 `StereoModel::perViewErrors` |
 
-## 8. 实现要点
+## 9. 实现要点
 
 - **两步法**：先各自 `calibrateCamera`，再 `stereoCalibrate` 冻结内参。一次性优化 9+5+9+5+6
   个参数很难收敛；`--refine-intrinsics` 只是在此结果上做联合微调（`CALIB_USE_INTRINSIC_GUESS`）。

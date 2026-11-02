@@ -22,10 +22,42 @@ if(NOT OpenCV_FOUND)
 endif()
 message(STATUS "stereo_calib: OpenCV ${OpenCV_VERSION} from ${OpenCV_DIR}")
 
-add_executable(stereo_calib stereo_calib.cpp)
+add_library(calib_core STATIC calib_core.cpp)
+target_include_directories(calib_core PUBLIC ${OpenCV_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(calib_core PUBLIC ${OpenCV_LIBS})
 
-target_include_directories(stereo_calib PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(stereo_calib PRIVATE ${OpenCV_LIBS})
+add_executable(stereo_calib stereo_calib.cpp)
+target_include_directories(stereo_calib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(stereo_calib PRIVATE calib_core)
+
+# Qt5 front end. Optional: a machine without the Qt dev packages still builds
+# the CLI. The GUI never calls cv::imshow(), so it does not fight the OpenCV
+# highgui backend for the event loop.
+option(BUILD_STEREO_CALIB_GUI "Build the Qt5 front end of the stereo calibration tool" ON)
+if(BUILD_STEREO_CALIB_GUI)
+    find_package(Qt5 COMPONENTS Widgets QUIET)
+    if(Qt5Widgets_FOUND)
+        add_executable(stereo_calib_gui
+            stereo_calib_gui.cpp
+            gui/main_window.cpp
+            gui/calib_worker.cpp
+            gui/image_view.cpp
+            gui/result_panel.cpp
+            gui/params.cpp
+            gui/fonts.cpp
+        )
+        set_target_properties(stereo_calib_gui PROPERTIES AUTOMOC ON)
+        target_include_directories(stereo_calib_gui PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}
+            ${CMAKE_CURRENT_SOURCE_DIR}/gui
+        )
+        target_link_libraries(stereo_calib_gui PRIVATE calib_core Qt5::Widgets)
+        message(STATUS "stereo_calib: GUI enabled (Qt ${Qt5Widgets_VERSION})")
+    else()
+        message(WARNING "Qt5 Widgets not found: stereo_calib_gui skipped "
+                        "(install qtbase5-dev or configure with -DBUILD_STEREO_CALIB_GUI=OFF)")
+    endif()
+endif()
 
 # OpenCV 5 moved calibration, rectification and the 3D helpers into separate
 # modules, so check for them explicitly instead of letting the compiler report a
