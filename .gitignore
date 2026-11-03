@@ -46,3 +46,7 @@ Thumbs.db
 *.swp
 *~
 .vscode/ipch/
+
+# Slidev presentation: keep source, ignore dependencies and build output
+slidev/node_modules/
+slidev/dist/
