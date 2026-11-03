@@ -69,6 +69,12 @@ buffers (pixel cost, aggregated cost, directional partial costs) — without tho
 a mismatch cannot be attributed to a stage. It is linked into the test binaries
 only.
 
+[IMPLEMENTATION.md](IMPLEMENTATION.md) records how the implementation was built
+and why each semantic constraint exists: the definition of "identical" and the
+staged verification behind it, the geometry and buffer layout, the four things
+that would silently break agreement, and what is left to do (`MODE_HH`,
+multi-channel input, dropping `cv::Mat`, a SIMD abstraction layer).
+
 ---
 
 ## Build and run
